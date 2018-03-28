@@ -1,0 +1,25 @@
+ 
+version: 2
+machine:
+  environment:
+    PATH: "${PATH}:${HOME}/${indiez/meply-fe}/node_modules/.bin"
+
+dependencies:
+  override:
+    - yarn
+
+working_directory: ~/indiez/meply-fe
+jobs:
+   build:
+     docker:
+       - image: circleci/node:7.10.1
+       - image: circleci/python:3.4
+     steps:
+       - checkout
+       - run: yarn install 
+       - run: yarn build
+       - run:
+          name: Deploy to S3 if tests pass and branch is Master
+          command: |
+            sudo apt-get -y -qq install awscli
+            aws s3 sync build s3://meply-fe-staging-test  --delete  		
